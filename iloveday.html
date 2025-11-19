@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Una carta para Daya</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: #6a0dad;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .background-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .bg-heart {
+            position: absolute;
+            font-size: 30px;
+            color: rgba(255, 255, 255, 0.25);
+            opacity: 0;
+            animation: bg-float 15s linear infinite;
+        }
+
+        @keyframes bg-float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.3;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 40px;
+            font-size: 2.8rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-family: 'Brush Script MT', cursive;
+        }
+
+        .envelope-container {
+            position: relative;
+            width: 250px;
+            height: 180px;
+            margin: 0 auto 30px;
+            cursor: pointer;
+            transition: all 0.8s ease;
+            z-index: 20;
+        }
+
+        .envelope-container:hover {
+            transform: scale(1.1);
+        }
+
+        .envelope {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #9b59b6;
+            border-radius: 8px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            transition: all 0.8s ease;
+            z-index: 22;
+        }
+
+        .envelope:before, .envelope:after {
+            content: '';
+            position: absolute;
+            background: #8e44ad;
+            width: 50%;
+            height: 100%;
+            border-radius: 8px;
+            z-index: 21;
+        }
+
+        .envelope:before {
+            left: 0;
+            transform: skewY(40deg);
+            transform-origin: 0 0;
+        }
+
+        .envelope:after {
+            right: 0;
+            transform: skewY(-40deg);
+            transform-origin: 100% 0;
+        }
+
+        .envelope-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #8e44ad;
+            transform-origin: top;
+            transition: transform 0.8s ease;
+            z-index: 23;
+            border-radius: 8px;
+        }
+
+        .envelope-top:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #8e44ad;
+            clip-path: polygon(0% 0%, 50% 50%, 100% 0%);
+            border-radius: 8px;
+        }
+
+        .letter-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 320px;
+            height: 320px;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.8s ease;
+            pointer-events: none;
+        }
+
+        .letter-container.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: all;
+        }
+
+        .letter {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 3px solid #d8bfd8;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .letter:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #d8bfd8, #9b59b6, #d8bfd8);
+        }
+
+        .letter-content {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease 0.4s;
+        }
+
+        .letter-container.open .letter-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card-open .envelope-top {
+            transform: rotateX(180deg);
+        }
+
+        .card-open .envelope-container {
+            transform: scale(0.8) translateY(50px);
+            opacity: 0.5;
+        }
+
+        .card-open .instructions {
+            opacity: 0;
+        }
+
+        .floating-hearts {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 30;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 25px;
+            color: #9b59b6;
+            opacity: 0;
+        }
+
+        .instructions {
+            margin-top: 30px;
+            color: white;
+            font-size: 1.2rem;
+            font-style: italic;
+            transition: opacity 0.5s ease;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #9b59b6;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 101;
+            opacity: 0;
+            transition: opacity 0.3s ease 1s;
+        }
+
+        .letter-container.open .close-btn {
+            opacity: 1;
+        }
+
+        .signature {
+            text-align: right;
+            margin-top: 20px;
+            font-family: 'Brush Script MT', cursive;
+            font-size: 1.8rem;
+            color: #8e44ad;
+        }
+
+        .message {
+            line-height: 1.6;
+            color: #333;
+            font-size: 1rem;
+            max-height: 180px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .message::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .message::-webkit-scrollbar-thumb {
+            background: #d8bfd8;
+            border-radius: 10px;
+        }
+
+        .message p {
+            margin-bottom: 12px;
+        }
+
+        .greeting {
+            font-family: 'Brush Script MT', cursive;
+            font-size: 2rem;
+            color: #8e44ad;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-200px) rotate(360deg); opacity: 0; }
+        }
+
+        @media (max-width: 480px) {
+            .envelope-container {
+                width: 200px;
+                height: 140px;
+            }
+            
+            .letter-container {
+                width: 280px;
+                height: 280px;
+            }
+            
+            .letter {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .message {
+                max-height: 150px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-hearts" id="backgroundHearts"></div>
+
+    <div class="container" id="mainContainer">
+        <h1>Para Daya, con cariño</h1>
+
+        <div class="envelope-container" id="envelope">
+            <div class="envelope"></div>
+            <div class="envelope-top"></div>
+            <div class="floating-hearts" id="floatingHearts"></div>
+        </div>
+        
+    </div>
+
+    <div class="letter-container" id="letterContainer">
+        <button class="close-btn" id="closeBtn">×</button>
+        <div class="letter">
+            <div class="letter-content">
+                <div class="greeting">Querida Daya</div>
+                <div class="message">
+                    <p>Solo quería escribirte estas palabras para decirte lo especial que eres para mí. Desde que estás en mi vida, todo parece tener más brillo y significado.</p>
+                    <p>Tu forma de ser, tu sonrisa y tu manera de ver el mundo hacen que cada día a tu lado sea único. Me encanta compartir momentos contigo, desde las risas hasta las conversaciones profundas.</p>
+                    <p>Eres una persona increíblemente especial, con una luz interior que ilumina todo a tu alrededor. Admiro tu fortaleza, tu bondad y la persona maravillosa que eres.</p>
+                    <p>Espero poder seguir compartiendo muchos más momentos especiales a tu lado y verte brillar como solo tú sabes hacerlo.</p>
+                    <p>Te quiero pato da la vida!</p>
+                </div>
+                <div class="signature">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const envelope = document.getElementById('envelope');
+            const letterContainer = document.getElementById('letterContainer');
+            const closeBtn = document.getElementById('closeBtn');
+            const mainContainer = document.getElementById('mainContainer');
+            const floatingHearts = document.getElementById('floatingHearts');
+            const backgroundHearts = document.getElementById('backgroundHearts');
+            
+            function createBackgroundHearts() {
+                for (let i = 0; i < 20; i++) {
+                    const heart = document.createElement('div');
+                    heart.innerHTML = '❤';
+                    heart.classList.add('bg-heart');
+                    const left = Math.random() * 100;
+                    const delay = Math.random() * 15;
+                    const duration = 10 + Math.random() * 10;
+                    heart.style.left = `${left}%`;
+                    heart.style.animationDelay = `${delay}s`;
+                    heart.style.animationDuration = `${duration}s`;
+                    heart.style.fontSize = `${20 + Math.random() * 30}px`;
+                    backgroundHearts.appendChild(heart);
+                }
+            }
+            
+            function createFloatingHearts() {
+                floatingHearts.innerHTML = '';
+                for (let i = 0; i < 12; i++) {
+                    setTimeout(() => {
+                        const heart = document.createElement('div');
+                        heart.innerHTML = '❤';
+                        heart.classList.add('heart');
+                        const left = 30 + Math.random() * 40;
+                        const duration = 2 + Math.random() * 2;
+                        const delay = Math.random() * 1;
+                        heart.style.left = `${left}%`;
+                        heart.style.animation = `float ${duration}s ease-out ${delay}s forwards`;
+                        floatingHearts.appendChild(heart);
+                    }, i * 150);
+                }
+            }
+
+            envelope.addEventListener('click', function() {
+                mainContainer.classList.add('card-open');
+                letterContainer.classList.add('open');
+                createFloatingHearts();
+            });
+            
+            closeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                mainContainer.classList.remove('card-open');
+                letterContainer.classList.remove('open');
+            });
+            
+            letterContainer.addEventListener('click', function(e) {
+                if (e.target === letterContainer) {
+                    mainContainer.classList.remove('card-open');
+                    letterContainer.classList.remove('open');
+                }
+            });
+
+            createBackgroundHearts();
+            
+            setTimeout(() => {
+                envelope.style.transform = 'scale(1)';
+            }, 500);
+        });
+    </script>
+</body>
+</html>
